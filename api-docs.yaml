@@ -1,0 +1,45 @@
+openapi: 3.0.1
+info:
+  title: GitScrapper API
+  description: API for scrapping github.
+  version: "1.0"
+servers:
+- url: http://localhost:9191
+  description: Generated server url
+paths:
+  /repos/{username}:
+    get:
+      tags:
+      - github-repos-handler
+      operationId: getReposWithBranches
+      parameters:
+      - name: username
+        in: path
+        required: true
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewRepo'
+components:
+  schemas:
+    NewBranch:
+      type: object
+      properties:
+        name:
+          type: string
+        sha:
+          type: string
+    NewRepo:
+      type: object
+      properties:
+        name:
+          type: string
+        owner:
+          type: string
+        branches:
+          type: array
+          items:
+            $ref: '#/components/schemas/NewBranch'

@@ -8,16 +8,22 @@
  * the contract under which the program(s) have been supplied.
  */
 
-package com.urkei.gitscrapper;
+package com.urkei.gitscrapper.dto.git;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+/**
+ * Github owner of repository.
+ */
+public class Owner {
 
-@SpringBootTest
-class GitScrapperApplicationTests {
+    /** Github user login. */
+    private String login;
 
-    @Test
-    void contextLoads() {
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 
 }

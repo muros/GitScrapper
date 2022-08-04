@@ -8,16 +8,24 @@
  * the contract under which the program(s) have been supplied.
  */
 
-package com.urkei.gitscrapper;
+package com.urkei.gitscrapper.dto.git;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+/**
+ * Github commit data on Branch.
+ *
+ * @see Branch
+ */
+public class Commit {
 
-@SpringBootTest
-class GitScrapperApplicationTests {
+    /** SHA of commit. */
+    private String sha;
 
-    @Test
-    void contextLoads() {
+    public String getSha() {
+        return sha;
+    }
+
+    public void setSha(String sha) {
+        this.sha = sha;
     }
 
 }
