@@ -18,6 +18,14 @@ and someone will hount you for the rest of your life or until you run:
     mvn test
 
 To run server locally, you can configure with **application.properties**
+For application to be able to access github REST API, it has to be provided with
+OAuth token, you have to provide your own token, the one that is present is expired and
+is just an example.
+
+    github.token=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
+
+How to obtain token is described here https://docs.github.com/en/rest/guides/getting-started-with-the-rest-api#authentication
+
 
 and then run it with:
 
