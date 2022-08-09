@@ -13,9 +13,19 @@ During the build test are run automatically, if you want to skip use:
 
     mvn clean install -D skipTest
 
-and someone will hount you for the rest of your life or until you run:
+and someone will hunt you for the rest of your life or until you run:
 
     mvn test
+
+To run integration tests and create coverage report
+
+     mvn clean package -Dgroups="integration"
+
+or to run pure unit tests
+
+     mvn clean package -Dgroups="unit"
+
+Reports with coverage are provided at ***target/site/jacoco/index.html***
 
 To run server locally, you can configure with **application.properties**
 For application to be able to access github REST API, it has to be provided with

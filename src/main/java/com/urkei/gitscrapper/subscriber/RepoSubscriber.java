@@ -67,6 +67,8 @@ public class RepoSubscriber implements Subscriber<Repo> {
         logger.debug(">> onError Repo " + t.getClass());
         if (t instanceof WebClientResponseException.NotFound) {
             repoPublisher.onNotFound(t);
+        } else {
+            repoPublisher.onOtherError(t);
         }
     }
 

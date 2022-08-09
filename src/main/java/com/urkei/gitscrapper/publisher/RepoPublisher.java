@@ -126,4 +126,14 @@ public class RepoPublisher implements Publisher<NewRepo> {
         this.subscriber.onError(t);
     }
 
+    /**
+     * When any other error happens - default error handler on
+     * repo publisher.
+     *
+     * @param t any other throwable while listening on response.
+     */
+    public void onOtherError(Throwable t) {
+        this.subscriber.onError(t);
+    }
+
 }

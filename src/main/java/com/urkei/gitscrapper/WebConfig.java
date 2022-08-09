@@ -44,65 +44,59 @@ public class WebConfig {
     @Bean
     @Order(-2)
     public WebExceptionHandler exceptionHandler() {
+        Mono<Void> monoResponse = null;
+
         return (ServerWebExchange exchange, Throwable ex) -> {
-            // Status code, Status text
-            // 404 - Not Found
-            // 404 - No matching handler
-            if (ex instanceof WebClientResponseException.NotFound) {
-                WebClientResponseException webClientException = (WebClientResponseException) ex;
 
-                ObjectMapper mapper = new ObjectMapper();
-                String jsonString = "{}";
-                try {
-                    ServiceErrorMessage serviceErrorMessage = new ServiceErrorMessage(webClientException.getMessage(),
-                            webClientException.getStatusCode().value());
-                    jsonString = mapper.writeValueAsString(serviceErrorMessage);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-                byte[] bytes = jsonString.getBytes(StandardCharsets.UTF_8);
-                DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
-
-                String statusText = webClientException.getStatusText();
-                switch (statusText) {
-                    case "Not Found":
-                        exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
-                        break;
-                    default:
-                        exchange.getResponse().setStatusCode(webClientException.getStatusCode());
-                }
-                exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-
-                return exchange.getResponse().writeWith(Flux.just(buffer));
+            HttpStatus httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+            String message = "Unknown server error.";
+            String reason = "NA";
+            // Error handling by requirements.
+            //
+            // Status code - Status text
+            // 404         - Not Found
+            // 404         - No matching handler
+            if (ex instanceof WebClientResponseException) {
+                httpStatus = ((WebClientResponseException) ex).getStatusCode();
+                message = ((WebClientResponseException) ex).getStatusText();
+                reason = message;
+            } else if (ex instanceof ResponseStatusException) {
+                httpStatus = ((ResponseStatusException) ex).getStatus();
+                message = ((ResponseStatusException) ex).getMessage();
+                reason = ((ResponseStatusException) ex).getReason();
+            } else {
+                httpStatus = HttpStatus.INTERNAL_SERVER_ERROR;
+                message = ex.getMessage();
+                reason = message;
             }
-            else if (ex instanceof ResponseStatusException) {
-                ResponseStatusException webClientException = (ResponseStatusException) ex;
 
-                ObjectMapper mapper = new ObjectMapper();
-                String jsonString = "{}";
-                try {
-                    ServiceErrorMessage serviceErrorMessage = new ServiceErrorMessage(webClientException.getMessage(),
-                            HttpStatus.NOT_ACCEPTABLE.value());
-                    jsonString = mapper.writeValueAsString(serviceErrorMessage);
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-                byte[] bytes = jsonString.getBytes(StandardCharsets.UTF_8);
-                DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
-
-                String statusText = webClientException.getReason();
-                switch (statusText) {
-                    case "No matching handler":
-                        exchange.getResponse().setStatusCode(HttpStatus.NOT_ACCEPTABLE);
-                        break;
-                    default:
-                        exchange.getResponse().setStatusCode(webClientException.getStatus());
-                }
-                exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
-
-                return exchange.getResponse().writeWith(Flux.just(buffer));
+            ObjectMapper mapper = new ObjectMapper();
+            String jsonString = "{}";
+            try {
+                ServiceErrorMessage serviceErrorMessage = new ServiceErrorMessage(message, httpStatus.value());
+                jsonString = mapper.writeValueAsString(serviceErrorMessage);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
             }
-            return Mono.error(ex);
+
+            byte[] bytes = jsonString.getBytes(StandardCharsets.UTF_8);
+            DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(bytes);
+
+            String statusText = httpStatus.getReasonPhrase();
+            switch (reason) {
+                case "Not Found":
+                    exchange.getResponse().setStatusCode(HttpStatus.NOT_FOUND);
+                    break;
+                case "No matching handler":
+                    exchange.getResponse().setStatusCode(HttpStatus.NOT_ACCEPTABLE);
+                    break;
+                default:
+                    exchange.getResponse().setStatusCode(httpStatus);
+                    break;
+            }
+            exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_JSON);
+
+            return exchange.getResponse().writeWith(Flux.just(buffer));
         };
     }
 

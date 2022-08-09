@@ -12,6 +12,8 @@ package com.urkei.gitscrapper;
 
 import com.urkei.gitscrapper.dto.tui.NewRepo;
 import com.urkei.gitscrapper.dto.tui.ServiceErrorMessage;
+import jdk.nashorn.internal.ir.annotations.Ignore;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +36,7 @@ public class GithubReposRouterTest {
     private WebTestClient webTestClient;
 
     @Test
+    @Tag("integration")
     public void testUserAndReposExist() {
         webTestClient
                 .get().uri("/repos/muros")
@@ -46,6 +49,7 @@ public class GithubReposRouterTest {
     }
 
     @Test
+    @Tag("integration")
     public void testNonexistentUser() {
         webTestClient
                 .get().uri("/repos/muros-cttt")
@@ -58,6 +62,7 @@ public class GithubReposRouterTest {
     }
 
     @Test
+    @Tag("integration")
     public void testXmlMediaTypeNotSupported() {
         webTestClient
                 .get().uri("/repos/muros")
@@ -65,7 +70,7 @@ public class GithubReposRouterTest {
                 .exchange()
                 .expectStatus().isEqualTo(HttpStatus.NOT_ACCEPTABLE)
                 .expectBody(ServiceErrorMessage.class).value(msg -> {
-                    assertThat(msg.getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
+                    assertThat(msg.getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
                 });
     }
 
